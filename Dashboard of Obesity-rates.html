@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+
+<html lang="en">
+    <head>
+        <title>US Obesity Explanation</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+        <script src="https://d3js.org/d3.v4.min.js"></script>
+        
+        <style type="text/css">
+
+            path:hover {
+                fill-opacity: 0.75;
+            }
+            
+            form {
+                width: 100%;
+            }
+            div.radio-box {
+                width: 40px;
+                display: inline-block;
+                margin: 1px;
+            }
+            .radio-box label {
+                display:block;
+                width: 40px;
+                text-align: center;
+            }
+            .radio-box input {
+                width: 20px;
+                display: block;
+                margin: 0px auto;
+            }
+            
+            /* basic positioning */
+            .legend { list-style: none; }
+            .legend li { float: left; margin-right: 8px;}
+            .legend span { border: 1px solid #ccc; float: left; width: 12px; height: 12px; margin: 2px; }
+            /* your colors */
+            .legend .level1 { background-color: #4CA3A3; }
+            .legend .level2 { background-color: #88BF6B; }
+            .legend .level3 { background-color: #CBD36B; }
+            .legend .level4 { background-color: #F9CE4D; }
+            .legend .level5 { background-color: #F37032; }
+            .legend .level6 { background-color: #BE1F24; }
+            .legend .level7 { background-color: #62136D; }
+            
+            
+            .grid line {
+                stroke: lightgrey;
+                stroke-opacity: 0.7;
+                shape-rendering: crispEdges;
+            }
+
+            .grid path {
+                stroke-width: 0;
+            }
+            
+           
+                        
+        </style>
+    </head>
+    
+    <body>
+        <h1 style="margin-left: 15px">Adult Obesity in the United States</h1>
+  
+        <div class="container-fluid" style="margin-top:10px">
+            
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12">
+                    <h5>Percent of obese adults (Body Mass Index of 30+)</h5>
+                    <ul class="legend" style="padding: 0; margin:0">
+                        <li><span class="level1"></span> 0 - 9.9%</li>
+                        <li><span class="level2"></span> 10 - 14.9%</li>
+                        <li><span class="level3"></span> 15 - 19.9%</li>
+                        <li><span class="level4"></span> 20 - 24.9%</li>
+                        <li><span class="level5"></span> 25 - 29.9%</li>
+                        <li><span class="level6"></span> 30 - 34.9%</li>
+                        <li><span class="level7"></span> 35%+</li>
+                    </ul>
+                </div>
+                
+            </div>
+ 
+            <div class="row">
+                <div class="col-lg-6 col-md-6 col-sm-6" id="us_map" style="height:480px">  
+                </div>
+                
+                <div class="col-lg-6 col-md-6 col-sm-6" id="obesity_rate" style="height:480px">  
+                </div>
+                
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12 col-md-12 col-sm-12" style="margin-top: 20px">
+                    <form action="">
+                        <div class="radio-box">
+                            <input type="radio" id="y1990" name="year" value="1990"><label>1990</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y1995" name="year" value="1995"><label>1995</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2000" name="year" value="2000"><label>2000</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2003" name="year" value="2003"><label>2003</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2004" name="year" value="2004"><label>2004</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2005" name="year" value="2005"><label>2005</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2006" name="year" value="2006"><label>2006</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2007" name="year" value="2007"><label>2007</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2008" name="year" value="2008"><label>2008</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2009" name="year" value="2009"><label>2009</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2010" name="year" value="2010"><label>2010</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2011" name="year" value="2011"><label>2011</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2012" name="year" value="2012"><label>2012</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2013" name="year" value="2013"><label>2013</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2014" name="year" value="2014"><label>2014</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2015" name="year" value="2015"><label>2015</label>
+                        </div>
+                        <div class="radio-box">
+                            <input type="radio" id="y2016" name="year" value="2016" checked="checked"><label>2016</label>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        
+        <script type="text/javascript">
+            var width = 860;
+            var height = 500;
+            
+            var margin = {top: 20, right: 20, bottom: 30, left: 50};
+            
+            var parseDate = d3.timeParse("%Y");
+            
+            // set the ranges
+            var x = d3.scaleTime().range([0, 530]);
+            var y = d3.scaleLinear().range([400, 0]);
+            
+            
+            var valueline = d3.line()
+                .defined(function(d) {return d.rate;})
+                .x(function(d) { return x(d.date); })
+                .y(function(d) { return y(d.rate); });
+            
+            var projection = d3.geoAlbersUsa().translate([width/3, height/2]).scale([850]);
+            
+            var path = d3.geoPath().projection(projection);
+            
+            
+            var mapSVG = d3.select("#us_map").append("svg").attr("width", width).attr("height", height);
+            
+            var chartSVG = d3.select("#obesity_rate").append("svg")
+                            .attr("width", 530 + margin.left + margin.right)
+                            .attr("height", 400 + margin.top + margin.bottom)
+                            .append("g")
+                            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            
+            window.onload = function(){
+                drawMap("2016");
+                
+                var radios = document.forms[0].elements["year"];
+                for (var i = 0; i < radios.length; i++){
+                    radios[i].onclick=radioClicked;
+                }
+                
+                    
+           };
+           
+           var dates;
+           function radioClicked() {
+               mapSVG.remove();
+               mapSVG = d3.select("#us_map").append("svg").attr("width", width).attr("height", height);
+               drawMap(this.value);
+                
+            }
+            
+            // gridlines in x axis function
+            function make_x_gridlines() {		
+                return d3.axisBottom(x)
+                    .tickValues(dates)
+            }
+
+            // gridlines in y axis function
+            function make_y_gridlines() {		
+                return d3.axisLeft(y)
+                    .ticks(5)
+            }
+           
+           
+           function drawMap(choose){
+               d3.json("obesity-rates-2016.json", function(error, chartData){
+                        if(error){
+                          return console.error(error);
+                        }
+                        console.log(chartData);
+
+
+                        d3.json("us-states.json", function(error, mapData){
+                            if(error){
+                              return console.error(error);
+                            }
+
+                            for (var i = 0; i < chartData.length; i++){
+                                var state_name_chart = chartData[i].st;
+                                var state_ab_chart = chartData[i].ab;
+                                var rate1990_chart = chartData[i].yr1990;
+                                var rate1995_chart = chartData[i].yr1995;
+                                var rate2000_chart = chartData[i].yr2000;
+                                var rate2003_chart = chartData[i].yr2003;
+                                var rate2004_chart = chartData[i].yr2004;
+                                var rate2005_chart = chartData[i].yr2005;
+                                var rate2006_chart = chartData[i].yr2006;
+                                var rate2007_chart = chartData[i].yr2007;
+                                var rate2008_chart = chartData[i].yr2008;
+                                var rate2009_chart = chartData[i].yr2009;
+                                var rate2010_chart = chartData[i].yr2010;
+                                var rate2011_chart = chartData[i].yr2011;
+                                var rate2012_chart = chartData[i].yr2012;
+                                var rate2013_chart = chartData[i].yr2013;
+                                var rate2014_chart = chartData[i].yr2014;
+                                var rate2015_chart = chartData[i].yr2015;
+                                var rate2016_chart = chartData[i].yr2016;
+   
+                                for (var j = 0; j < mapData.features.length; j++){
+                                    var state_name_map = mapData.features[j].properties.name;
+
+                                    if(state_name_chart === state_name_map){
+                                        mapData.features[j].properties.ab = state_ab_chart;
+                                        mapData.features[j].properties.yr1990 = rate1990_chart;
+                                        mapData.features[j].properties.yr1995 = rate1995_chart;
+                                        mapData.features[j].properties.yr2000 = rate2000_chart;
+                                        mapData.features[j].properties.yr2003 = rate2003_chart;
+                                        mapData.features[j].properties.yr2004 = rate2004_chart;
+                                        mapData.features[j].properties.yr2005 = rate2005_chart;
+                                        mapData.features[j].properties.yr2006 = rate2006_chart;
+                                        mapData.features[j].properties.yr2007 = rate2007_chart;
+                                        mapData.features[j].properties.yr2008 = rate2008_chart;
+                                        mapData.features[j].properties.yr2009 = rate2009_chart;
+                                        mapData.features[j].properties.yr2010 = rate2010_chart;
+                                        mapData.features[j].properties.yr2011 = rate2011_chart;
+                                        mapData.features[j].properties.yr2012 = rate2012_chart;
+                                        mapData.features[j].properties.yr2013 = rate2013_chart;
+                                        mapData.features[j].properties.yr2014 = rate2014_chart;
+                                        mapData.features[j].properties.yr2015 = rate2015_chart;
+                                        mapData.features[j].properties.yr2016 = rate2016_chart;
+                                        mapData.features[j].properties.id = "#path"+j.toString();
+                                        
+                                    }
+                                    
+                                    
+                                }
+                            }
+                            
+                            console.log(mapData.features[0].properties);
+                            console.log(mapData)
+                        
+                            //fist line in order to draw grid line...
+                            var arrayData = [
+                                        ["1990",mapData.features[0].properties.yr1990],
+                                        ["1995",mapData.features[0].properties.yr1995],
+                                        ["2000",mapData.features[0].properties.yr2000],
+                                        ["2003",mapData.features[0].properties.yr2003],
+                                        ["2004",mapData.features[0].properties.yr2004],
+                                        ["2005",mapData.features[0].properties.yr2005],
+                                        ["2006",mapData.features[0].properties.yr2006],
+                                        ["2007",mapData.features[0].properties.yr2007],
+                                        ["2008",mapData.features[0].properties.yr2008],
+                                        ["2009",mapData.features[0].properties.yr2009],
+                                        ["2010",mapData.features[0].properties.yr2010],
+                                        ["2011",mapData.features[0].properties.yr2011],
+                                        ["2012",mapData.features[0].properties.yr2012],
+                                        ["2013",mapData.features[0].properties.yr2013],
+                                        ["2014",mapData.features[0].properties.yr2014],
+                                        ["2015",mapData.features[0].properties.yr2015],
+                                        ["2016",mapData.features[0].properties.yr2016]
+                                ];         
+                                            
+                            var data = arrayData.map(function(d) {
+                                return {
+                                   date: parseDate(d[0]),
+                                   rate: d[1]
+                                };
+
+                            });
+                            // Scale the range of the data
+                            x.domain(d3.extent(data, function(d) { return d.date; }));
+                            y.domain([0, d3.max(data, function(d) { return d.rate; })]);
+
+                            var dates = data.map(function(d){return d.date;});
+
+                            // Add the valueline path.
+                            chartSVG.append("path")
+                                .data([data])
+                                .attr("id", "path0")
+                                .attr("class", "line")
+                                .attr("d", valueline)
+                                .attr('stroke', 'lightgray')
+                                .attr('stroke-width', 2)
+                                .attr('fill', 'none');
+
+                            // add the X gridlines
+                            chartSVG.append("g")			
+                                .attr("class", "grid")
+                                .attr("transform", "translate(0," + 400 + ")")
+                                .call(make_x_gridlines()
+                                    .tickValues(dates)
+                                    .tickSize(-400)
+                                    .tickFormat("")
+                                );
+
+                            // add the Y gridlines
+                            chartSVG.append("g")			
+                                .attr("class", "grid")
+                                .call(make_y_gridlines()
+                                    .tickSize(-530)
+                                    .tickFormat(""));
+
+
+                            // Add the X Axis
+                            chartSVG.append("g")
+                                .attr("transform", "translate(0," + 400 + ")")
+                                .call(d3.axisBottom(x));
+
+                            // Add the Y Axis
+                            chartSVG.append("g")
+                                .call(d3.axisLeft(y));
+                            console.log(mapData)
+                        
+
+                            for(var i = 1; i < mapData.features.length; i++){
+                                var arrayData = [
+                                        ["1990",mapData.features[i].properties.yr1990],
+                                        ["1995",mapData.features[i].properties.yr1995],
+                                        ["2000",mapData.features[i].properties.yr2000],
+                                        ["2003",mapData.features[i].properties.yr2003],
+                                        ["2004",mapData.features[i].properties.yr2004],
+                                        ["2005",mapData.features[i].properties.yr2005],
+                                        ["2006",mapData.features[i].properties.yr2006],
+                                        ["2007",mapData.features[i].properties.yr2007],
+                                        ["2008",mapData.features[i].properties.yr2008],
+                                        ["2009",mapData.features[i].properties.yr2009],
+                                        ["2010",mapData.features[i].properties.yr2010],
+                                        ["2011",mapData.features[i].properties.yr2011],
+                                        ["2012",mapData.features[i].properties.yr2012],
+                                        ["2013",mapData.features[i].properties.yr2013],
+                                        ["2014",mapData.features[i].properties.yr2014],
+                                        ["2015",mapData.features[i].properties.yr2015],
+                                        ["2016",mapData.features[i].properties.yr2016]
+                                ];       
+
+                                var data = arrayData.map(function(d) {
+                                    return {
+                                       date: parseDate(d[0]),
+                                       rate: d[1]
+                                    };
+
+                                });
+
+                                console.log([data])
+                                // Add the valueline path.
+                                chartSVG.append("path")
+                                    .data([data])
+                                    .attr("id", "path"+i.toString())
+                                    .attr("class", "line")
+                                    .attr("d", valueline)
+                                    .attr('stroke', 'lightgray')
+                                    .attr('stroke-width', 2)
+                                    .attr('fill', 'none')
+                                    .on("mouseover", function(d){
+                                        d3.select(this.parentNode.appendChild(this)).transition().duration(200).style("stroke", "#663300").style("stroke-width", "6");
+                                    }).on("mouseout", function(d){
+                                        d3.select(this.parentNode.appendChild(this)).transition().duration(200).style("stroke", "lightgray").style("stroke-width", "2");
+                                    });
+
+                            }
+                            
+                            
+                            
+                            //
+                            mapSVG.selectAll("path")
+                                .data(mapData.features)
+                                .enter()
+                                .append("path")
+                                .attr("d", path)
+                                .style("stroke", "#fff")
+                                .style("stroke-width", "1")
+                                .style("fill", function(d) {
+                                    
+                                    var value;
+                                    
+                                    if(choose === "1990"){
+                                        value = d.properties.yr1990;
+                                    }
+                                    else if(choose === "1995"){
+                                        value = d.properties.yr1995;
+                                    }
+                                    else if(choose === "2000"){
+                                        value = d.properties.yr2000;
+                                    }
+                                    else if(choose === "2003"){
+                                        value = d.properties.yr2003;
+                                    }
+                                    else if(choose === "2004"){
+                                        value = d.properties.yr2004;
+                                    }
+                                    else if(choose === "2005"){
+                                        value = d.properties.yr2005;
+                                    }
+                                    else if(choose === "2006"){
+                                        value = d.properties.yr2006;
+                                    }
+                                    else if(choose === "2007"){
+                                        value = d.properties.yr2007;
+                                    }
+                                    else if(choose === "2008"){
+                                        value = d.properties.yr2008;
+                                    }
+                                    else if(choose === "2009"){
+                                        value = d.properties.yr2009;
+                                    }
+                                    else if(choose === "2010"){
+                                        value = d.properties.yr2010;
+                                    }
+                                    else if(choose === "2011"){
+                                        value = d.properties.yr2011;
+                                    }
+                                    else if(choose === "2012"){
+                                        value = d.properties.yr2012;
+                                    }
+                                    else if(choose === "2013"){
+                                        value = d.properties.yr2013;
+                                    }
+                                    else if(choose === "2014"){
+                                        value = d.properties.yr2014;
+                                    }
+                                    else if(choose === "2015"){
+                                        value = d.properties.yr2015;
+                                    }
+                                    else if(choose === "2016"){
+                                        value = d.properties.yr2016;
+                                    }
+                                    
+
+                                    if(value > 0 && value <= 9.9){
+                                        return "#4CA3A3";
+                                    }else if(value >= 10 && value <= 14.9){
+                                        return "#88BF6B";
+                                    }else if(value >= 15 && value <= 19.9){
+                                        return "#CBD36B";
+                                    }else if(value >= 20 && value <= 24.9){
+                                        return "#F9CE4D";
+                                    }else if(value >= 25 && value <= 29.9){
+                                        return "#F37032";
+                                    }else if(value >= 30 && value <= 34.9){
+                                        return "#BE1F24";
+                                    }else if(value >= 35){
+                                        return "#62136D";
+                                    }else{
+                                        return "#B1B3B6";
+                                    }
+
+
+                                })
+                                .on("mouseover", function(d){
+                                    console.log(this);
+                                    d3.select(this).transition().duration(200).style("stroke", "#663300").style("stroke-width", "2");
+                                    var thisNode = d3.select(d.properties.id);
+                                    thisNode.transition().duration(200).style("stroke", "#663300").style("stroke-width", "6");
+                                    
+                                    
+                                }).on("mouseout", function(d){
+                                    d3.select(this).transition().duration(250).style("stroke", "#fff").style("stroke-width", "1");
+                                    d3.select(d.properties.id).transition().duration(250).style("stroke", "lightgray").style("stroke-width", "2");
+                                });
+
+
+                            mapSVG.selectAll("text")
+                                .data(mapData.features)
+                                .enter()
+                                .append("svg:text")
+                                .text(function(d){
+                                    return d.properties.ab;
+                                })
+                                .attr("x", function(d){
+                                    return path.centroid(d)[0];
+                                })
+                                .attr("y", function(d){
+                                    return  path.centroid(d)[1];
+                                })
+                                .attr("text-anchor","middle")
+                                .attr('font-size','5pt')
+                                .attr('fill','black')
+                                .attr('font-weight','bold');
+                        });
+                        
+                       
+
+                });
+                
+                
+            
+           }
+            
+            
+            
+            
+            
+        </script>
+        
+    </body>
+</html>
