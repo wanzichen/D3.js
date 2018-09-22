@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CDC</title>
+    <script src="http://d3js.org/d3.v4.min.js"></script>
+
+    <style>
+
+        #tooltip {
+            position: absolute;
+            text-align: center;
+
+            pointer-events: none;
+        }
+
+        #tooltip{
+            background:rgba(0,0,0,0.9);
+            border:1px solid white;
+            border-radius:5px;
+            font-size:12px;
+            width:auto;
+            padding:4px;
+            color:white;
+            opacity:0;
+        }
+        #tooltip table{
+            table-layout:fixed;
+        }
+        #tooltip tr td{
+            padding:0;
+            margin:0;
+            border:1px solid white;
+            border-collapse: collapse;
+        }
+        #tooltip tr td:nth-child(1){
+            width:50px;
+        }
+        #tooltip tr td:nth-child(2){
+            text-align:center;
+            border-collapse: collapse;
+        }
+
+
+
+    </style>
+</head>
+<body>
+<h2>A Weekly Influenza Surveillance Report Prepared by the Influenza Division
+    Influenza-Like Illness (ILI) Activity Level Indicator Determined by Data Reported to ILINet</h2>
+<div id="tooltip"></div><!-- div to hold tooltip. -->
+<div id="drop" align=center></div>
+
+
+<script>
+
+
+    // Width and Height of the whole visualization
+    var width = 960;
+    var height = 600;
+
+    // Create SVG
+    var svg = d3.select( "body" )
+        .append( "svg" )
+        .attr( "width", width )
+        .attr( "height", height );
+
+
+    // Set Projection Parameters
+    var albersProjection = d3.geoAlbersUsa();
+
+    var geoPath = d3.geoPath()
+        .projection( albersProjection );
+
+    //let colorScale = d3.scaleThreshold()
+        //.domain(d3.range(1, 10))
+        //.range(d3.schemeCategory10);
+    var colorScale =  d3.scaleOrdinal()
+        .range(["rgb(255,191,0)","rgb(80,163,147)","rgb(84,55,30)","rgb(0,255,255)"]);
+
+
+
+
+    // Draw map
+    drawMap();
+    function drawMap() {
+
+        //convert string to number
+       var rowConverter = function(d) {
+            //console.log(d);
+            return {
+            STATENAME: d.STATENAME,
+            ACTIVITY_LEVEL: parseFloat(d.ACTIVITY_LEVEL),
+            ACTIVITY_LEVEL_LABEL: d.ACTIVITY_LEVEL_LABEL,
+            WEEKEND: d.WEEKEND,
+            WEEK: parseInt(d.WEEK),
+            SEASON: d.SEASON
+            };
+        };
+
+        d3.queue()
+            .defer(d3.json, "us-states.json",)
+            .defer(d3.csv,"StateDatabySeason57_56,55,54,53,52,51,50,49,48.csv")
+            .await(function (error, usData, fluData) {
+
+                    // convert string to number
+                    fluData = fluData.map(rowConverter);
+                    console.log(fluData)
+                    console.log(usData)
+
+
+                    svg.selectAll("path")
+                        .data(usData.features)
+                        .enter()
+                        .append("path")
+                        .attr("fill", "none")
+                        .attr("d", geoPath)
+                        .attr("class", "StateBorder")
+                        .style("stroke", "steelblue")
+                        .style("stroke-width", 1)
+                        //.on("mouseover", mouseOver)
+                        //.on("mouseout", mouseOut);
+
+                    updateMap("2015-16", 1);
+
+                //create legend
+
+                let legendText = ["Regional", "Local Activity","Widespread", "No Activity"];
+                let legend = d3.select("body").append("svg")
+
+                    .attr("class", "legend")
+                    .attr("width", 130)
+                    .attr("height", 180)
+                    .selectAll("g")
+                    .data(colorScale.domain().slice().reverse())
+                    .enter()
+                    .append("g")
+                    .attr("transform", function(d, i) { return "translate(15," + i * 25 + ")"; });
+
+                legend.append("rect")
+                    .attr("width", 15)
+                    .attr("height", 15)
+                    .style("fill", colorScale);
+
+                legend.append("text")
+                    .data(legendText)
+                    .attr("x", 24)
+                    .attr("y", 9)
+                    .attr("dy", ".35em")
+                    .text(function(d) { return d; });
+
+
+
+                //drop window
+                var selector = d3.select("#drop")
+                    .append("select")
+                    .attr("id", "dropdown")
+                    .on("change", function (d) {
+                        //console.log(document.getElementById("dropdown").value)
+                            updateMap(document.getElementById("dropdown").value, 1);
+                        }
+                    );
+
+                selector.selectAll("option")
+                    .data(["2008-09","2009-10","2010-11","2011-12","2012-13","2013-14","2014-15","2015-16","2016-17", "2017-18"])
+                    .enter().append("option")
+                    .attr("value", function(d){
+                        return d;
+                    })
+                    .text(function(d){
+                        return d;
+                    })
+
+
+
+
+
+                    function updateMap(season, week) {
+                    console.log(week)
+                        // extract one piece of data from flueData
+                        let data = {};
+                        for (let y = 0; y < fluData.length; y++) {
+                            if (fluData[y].SEASON === season && fluData[y].WEEK === week) {
+                                data[fluData[y].STATENAME] = fluData[y].ACTIVITY_LEVEL;
+
+
+                            }
+                        }
+                        console.log(data)
+
+
+                        svg.selectAll("path")
+                            .style("fill", function (d) {
+                                return colorScale(data[d.properties.name])// fill states with colorScale
+                            })
+                            .on("mouseover", mouseOver)
+                            .on("mouseout", mouseOut)
+
+
+                        function mouseOver(d) {
+                            d3.select("#tooltip")
+                                .transition()
+                                .duration(200)
+                                .style("opacity", .9);
+
+                            d3.select("#tooltip")
+                                .html(fluDataContent(d.properties.name))
+                                .style("left", (d3.event.pageX) + "px")
+                                .style("top", (d3.event.pageY - 28) + "px");
+
+                            d3.selectAll("path").select("StateBorder")
+                                .style("stroke", "red")
+                                .style("stroke-width", 2);
+
+
+                            var currentState = this;
+                            d3.select(this)
+                                .style('stroke', "red")
+                                .style("stroke-width", 3);
+                        }
+
+                        function mouseOut(){
+                            d3.select("#tooltip")
+                                .transition()
+                                .duration(500)
+                                .style("opacity", 0);
+
+                            d3.select(this)
+                                .style('stroke', "black")
+                                .style("stroke-width", 1);
+                        }
+
+
+                        function fluDataContent(state) {
+
+                            let data2={};
+
+                            for (let y1 = 0; y1 < fluData.length; y1++) {
+                                if (fluData[y1].SEASON === season && fluData[y1].WEEK === week) {
+                                    return "<table>" +"<tr><td>STATENAME</td><td>"+fluData[y1].STATENAME+"</td></tr>" +
+                                        "<tr><td>WEEKEND</td><td>" +fluData[y1].WEEKEND+"</td></tr>" +
+                                        "<tr><td>ACTIVITY LEVEL</td><td>"+fluData[y1].ACTIVITY_LEVEL+"</td></tr>" +
+                                        "<tr><td>ACTIVITY LEVEL LABEL</td><td>"+fluData[y1].ACTIVITY_LEVEL_LABEL+"</td></tr>" +
+                                        "</table>"
+                                };
+
+
+                             }
+                         }
+                    }
+
+
+
+             }
+
+
+
+
+
+
+
+
+
+            )
+    }
+
+</script>
+
+
+</body>
+</html>
